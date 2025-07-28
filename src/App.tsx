@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, FileText, Trash2, Edit3, Eye, Moon, Sun, Download, Upload, Tag } from 'lucide-react';
+import { Search, Plus, FileText, Trash2, Edit3, Eye, Moon, Sun, Download, Upload, Tag, Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -40,6 +40,7 @@ function App() {
   const [editContent, setEditContent] = useState('');
   const [editTitle, setEditTitle] = useState('');
   const [editTags, setEditTags] = useState('');
+  const [copiedNoteId, setCopiedNoteId] = useState<string | null>(null);
 
   // Load notes from localStorage on mount
   useEffect(() => {
@@ -203,6 +204,18 @@ function App() {
     reader.readAsText(file);
   }, []);
 
+  const copyNote = useCallback(async () => {
+    if (!state.currentNote) return;
+    
+    try {
+      await navigator.clipboard.writeText(state.currentNote.content);
+      setCopiedNoteId(state.currentNote.id);
+      setTimeout(() => setCopiedNoteId(null), 2000);
+    } catch (error) {
+      console.error('Failed to copy note:', error);
+    }
+  }, [state.currentNote]);
+
   const insertMarkdown = useCallback((syntax: string) => {
     const textarea = document.querySelector('.editor-textarea') as HTMLTextAreaElement;
     if (!textarea) return;
@@ -337,6 +350,13 @@ function App() {
                 )}
               </div>
               <div className="editor-actions">
+                <button onClick={copyNote} className="icon-button" title="Copy note content">
+                  {copiedNoteId === state.currentNote.id ? (
+                    <Check size={20} className="success-icon" />
+                  ) : (
+                    <Copy size={20} />
+                  )}
+                </button>
                 <button onClick={exportNote} className="icon-button" title="Export as .md">
                   <Download size={20} />
                 </button>
