@@ -631,11 +631,6 @@ body {
   justify-content: center;
 }
 
-.mobile-menu-button:hover {
-  background: var(--accent-hover);
-  transform: scale(1.05);
-}
-
 .mobile-close {
   display: none;
 }
@@ -996,10 +991,6 @@ body {
   font-size: 13px;
 }
 
-.shortcuts-title::before {
-  content: '⌨️';
-}
-
 .shortcut-item {
   display: flex;
   justify-content: space-between;
@@ -1290,10 +1281,6 @@ body {
   color: var(--text-primary);
   margin-bottom: 8px;
   font-size: 13px;
-}
-
-.shortcuts-title::before {
-  content: '⌨️';
 }
 
 .shortcut-item {

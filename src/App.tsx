@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, FileText, Trash2, Edit3, Eye, Moon, Sun, Download, Upload, Tag, Copy, Check, AlertCircle, X } from 'lucide-react';
+import { Search, Plus, FileText, Trash2, Edit3, Eye, Moon, Sun, Download, Upload, Tag, Copy, Check, AlertCircle, X, Keyboard, Lightbulb, Menu, Heart } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -44,6 +44,17 @@ function App() {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
+
+  // Auto-dismiss toasts after 3 seconds
+  useEffect(() => {
+    if (!toast) return;
+    
+    const timer = setTimeout(() => {
+      setToast(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [toast]);
 
   const createNote = useCallback(() => {
     const newNote: Note = {
@@ -339,7 +350,7 @@ function App() {
               className="icon-button mobile-close"
               title="Close sidebar"
             >
-              ✕
+              <X size={20} />
             </button>
           </div>
         </div>
@@ -376,10 +387,10 @@ function App() {
               <div className="onboarding-tips">
                 <h4>Quick Tips:</h4>
                 <ul>
-                  <li>Use Ctrl/Cmd + N to create notes quickly</li>
-                  <li>Add tags to organize your notes</li>
-                  <li>Live preview shows your markdown as you type</li>
-                  <li>Export notes as .md files anytime</li>
+                  <li><Lightbulb size={12} />Use Ctrl/Cmd + N to create notes quickly</li>
+                  <li><Lightbulb size={12} />Add tags to organize your notes</li>
+                  <li><Lightbulb size={12} />Live preview shows your markdown as you type</li>
+                  <li><Lightbulb size={12} />Export notes as .md files anytime</li>
                 </ul>
               </div>
             </div>
@@ -447,7 +458,7 @@ function App() {
         className="mobile-menu-button"
         title="Open sidebar"
       >
-        ☰
+        <Menu size={20} />
       </button>
       <div className="main-content">
         {state.currentNote ? (
@@ -523,10 +534,10 @@ function App() {
                   🔗
                 </button>
                 <button onClick={() => insertMarkdown('header')} title="Header">
-                  H
+                  <strong>H</strong>
                 </button>
                 <button onClick={() => insertMarkdown('list')} title="List">
-                  •
+                  <strong>•</strong>
                 </button>
               </div>
             )}
@@ -582,8 +593,9 @@ function App() {
               <Plus size={20} />
               Create New Note
             </button>
-            <div style={{ marginTop: '32px', fontSize: '14px', opacity: '0.7' }}>
-              <p>💡 Pro tip: Press <strong>Ctrl/Cmd + N</strong> to quickly create notes</p>
+            <div style={{ marginTop: '32px', fontSize: '14px', opacity: '0.7', display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center' }}>
+              <Lightbulb size={16} />
+              <p>Pro tip: Press <strong>Ctrl/Cmd + N</strong> to quickly create notes</p>
             </div>
           </div>
         )}
@@ -610,7 +622,10 @@ function App() {
       {/* Keyboard Shortcuts Help */}
       <div className="keyboard-shortcuts" title="Click to see keyboard shortcuts">
         <div className="shortcuts-content">
-          <div className="shortcuts-title">Shortcuts</div>
+          <div className="shortcuts-title">
+            <Keyboard size={12} />
+            Shortcuts
+          </div>
           <div className="shortcut-item">
             <span>New note</span>
             <span className="shortcut-key">Ctrl+N</span>
