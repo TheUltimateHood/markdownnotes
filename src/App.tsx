@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from 'react';
 import { Search, Plus, FileText, Trash2, Edit3, Eye, Moon, Sun, Download, Upload, Tag, Copy, Check } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
@@ -44,81 +43,6 @@ function App() {
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
-
-  // Load notes from localStorage on mount
-  useEffect(() => {
-    const savedData = localStorage.getItem(STORAGE_KEY);
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        setState(prev => ({
-          ...prev,
-          notes: parsed.notes.map((note: any) => ({
-            ...note,
-            createdAt: new Date(note.createdAt),
-            updatedAt: new Date(note.updatedAt)
-          })),
-          isDarkMode: parsed.isDarkMode || false
-        }));
-      } catch (error) {
-        console.error('Failed to load notes:', error);
-      }
-    }
-  }, []);
-
-  // Keyboard shortcuts
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.ctrlKey || e.metaKey) {
-        switch (e.key) {
-          case 'n':
-            e.preventDefault();
-            createNote();
-            break;
-          case 's':
-            e.preventDefault();
-            if (state.isEditing) {
-              saveNote();
-            }
-            break;
-          case 'e':
-            e.preventDefault();
-            if (state.currentNote) {
-              toggleEdit();
-            }
-            break;
-          case 'p':
-            e.preventDefault();
-            setState(prev => ({ ...prev, showPreview: !prev.showPreview }));
-            break;
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [state.isEditing, state.currentNote, createNote, saveNote, toggleEdit]);
-
-  // Save notes to localStorage whenever notes change
-  useEffect(() => {
-    const dataToSave = {
-      notes: state.notes,
-      isDarkMode: state.isDarkMode
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
-  }, [state.notes, state.isDarkMode]);
-
-  // Auto-save functionality
-  useEffect(() => {
-    if (state.isEditing && state.currentNote && (editContent !== state.currentNote.content || editTitle !== state.currentNote.title)) {
-      setIsSaving(true);
-      const timeoutId = setTimeout(() => {
-        saveNote();
-        setIsSaving(false);
-      }, 1000);
-      return () => clearTimeout(timeoutId);
-    }
-  }, [editContent, editTitle, editTags]);
 
   const createNote = useCallback(() => {
     const newNote: Note = {
@@ -200,6 +124,81 @@ function App() {
     setState(prev => ({ ...prev, isDarkMode: !prev.isDarkMode }));
   }, []);
 
+  // Load notes from localStorage on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem(STORAGE_KEY);
+    if (savedData) {
+      try {
+        const parsed = JSON.parse(savedData);
+        setState(prev => ({
+          ...prev,
+          notes: parsed.notes.map((note: any) => ({
+            ...note,
+            createdAt: new Date(note.createdAt),
+            updatedAt: new Date(note.updatedAt)
+          })),
+          isDarkMode: parsed.isDarkMode || false
+        }));
+      } catch (error) {
+        console.error('Failed to load notes:', error);
+      }
+    }
+  }, []);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'n':
+            e.preventDefault();
+            createNote();
+            break;
+          case 's':
+            e.preventDefault();
+            if (state.isEditing) {
+              saveNote();
+            }
+            break;
+          case 'e':
+            e.preventDefault();
+            if (state.currentNote) {
+              toggleEdit();
+            }
+            break;
+          case 'p':
+            e.preventDefault();
+            setState(prev => ({ ...prev, showPreview: !prev.showPreview }));
+            break;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [state.isEditing, state.currentNote, createNote, saveNote, toggleEdit]);
+
+  // Save notes to localStorage whenever notes change
+  useEffect(() => {
+    const dataToSave = {
+      notes: state.notes,
+      isDarkMode: state.isDarkMode
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave));
+  }, [state.notes, state.isDarkMode]);
+
+  // Auto-save functionality
+  useEffect(() => {
+    if (state.isEditing && state.currentNote && (editContent !== state.currentNote.content || editTitle !== state.currentNote.title)) {
+      setIsSaving(true);
+      const timeoutId = setTimeout(() => {
+        saveNote();
+        setIsSaving(false);
+      }, 1000);
+      return () => clearTimeout(timeoutId);
+    }
+  }, [editContent, editTitle, editTags, saveNote, state.isEditing, state.currentNote, state.currentNote?.content, state.currentNote?.title]);
+
   const filteredNotes = state.notes.filter(note => 
     note.title.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
     note.content.toLowerCase().includes(state.searchTerm.toLowerCase()) ||
@@ -208,7 +207,7 @@ function App() {
 
   const exportNote = useCallback(() => {
     if (!state.currentNote) return;
-    
+
     const blob = new Blob([state.currentNote.content], { type: 'text/markdown' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -250,7 +249,7 @@ function App() {
 
   const copyNote = useCallback(async () => {
     if (!state.currentNote) return;
-    
+
     try {
       await navigator.clipboard.writeText(state.currentNote.content);
       setCopiedNoteId(state.currentNote.id);
@@ -267,7 +266,7 @@ function App() {
     const start = textarea.selectionStart;
     const end = textarea.selectionEnd;
     const selectedText = editContent.substring(start, end);
-    
+
     let newText = '';
     switch (syntax) {
       case 'bold':
@@ -294,7 +293,7 @@ function App() {
 
     const newContent = editContent.substring(0, start) + newText + editContent.substring(end);
     setEditContent(newContent);
-    
+
     setTimeout(() => {
       textarea.focus();
       textarea.setSelectionRange(start + newText.length, start + newText.length);
@@ -304,12 +303,12 @@ function App() {
   const formatRelativeTime = (date: Date) => {
     const now = new Date();
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
+
     if (diffInSeconds < 60) return 'Just now';
     if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
     if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
     if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
-    
+
     return date.toLocaleDateString();
   };
 
