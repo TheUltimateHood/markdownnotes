@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Search, Plus, FileText, Trash2, Edit3, Eye, Moon, Sun, Download, Upload, Tag, Copy, Check } from 'lucide-react';
+import { Search, Plus, FileText, Trash2, Edit3, Eye, Moon, Sun, Download, Upload, Tag, Copy, Check, AlertCircle, X } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
@@ -43,6 +43,7 @@ function App() {
   const [isSaving, setIsSaving] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
   const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [toast, setToast] = useState<{ type: 'success' | 'error' | 'info'; message: string } | null>(null);
 
   const createNote = useCallback(() => {
     const newNote: Note = {
@@ -85,6 +86,7 @@ function App() {
       currentNote: prev.currentNote?.id === noteId ? null : prev.currentNote
     }));
     setShowDeleteConfirm(null);
+    setToast({ type: 'info', message: 'Note deleted' });
   }, []);
 
   const confirmDelete = useCallback((noteId: string) => {
@@ -110,6 +112,7 @@ function App() {
       currentNote: updatedNote,
       isEditing: false
     }));
+    setToast({ type: 'success', message: 'Note saved' });
   }, [state.currentNote, editTitle, editContent, editTags]);
 
   const toggleEdit = useCallback(() => {
@@ -141,6 +144,7 @@ function App() {
         }));
       } catch (error) {
         console.error('Failed to load notes:', error);
+        setToast({ type: 'error', message: 'Failed to load notes from local storage.' });
       }
     }
   }, []);
@@ -243,6 +247,7 @@ function App() {
       setEditTitle(newNote.title);
       setEditContent(newNote.content);
       setEditTags('');
+      setToast({ type: 'success', message: 'Note imported' });
     };
     reader.readAsText(file);
   }, []);
@@ -253,9 +258,11 @@ function App() {
     try {
       await navigator.clipboard.writeText(state.currentNote.content);
       setCopiedNoteId(state.currentNote.id);
+      setToast({ type: 'success', message: 'Note copied to clipboard!' });
       setTimeout(() => setCopiedNoteId(null), 2000);
     } catch (error) {
       console.error('Failed to copy note:', error);
+      setToast({ type: 'error', message: 'Failed to copy note to clipboard.' });
     }
   }, [state.currentNote]);
 
@@ -434,7 +441,7 @@ function App() {
           style={{ background: 'rgba(0, 0, 0, 0.3)' }}
         />
       )}
-      
+
       <button 
         onClick={() => setShowMobileSidebar(true)} 
         className="mobile-menu-button"
@@ -622,6 +629,24 @@ function App() {
           </div>
         </div>
       </div>
+
+      {/* Toast Notifications */}
+      {toast && (
+        <div className={`toast toast-${toast.type}`}>
+          <div className="toast-content">
+            {toast.type === 'success' && <Check size={16} />}
+            {toast.type === 'error' && <AlertCircle size={16} />}
+            {toast.type === 'info' && <FileText size={16} />}
+            <span>{toast.message}</span>
+          </div>
+          <button 
+            onClick={() => setToast(null)}
+            className="toast-close"
+          >
+            <X size={14} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
