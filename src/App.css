@@ -58,13 +58,20 @@ body {
 /* Sidebar */
 .sidebar {
   width: 320px;
-  background: var(--bg-primary);
-  backdrop-filter: blur(var(--blur));
-  border-right: 0.5px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(20px);
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.app.dark .sidebar {
+  background: rgba(28, 28, 30, 0.8);
+  border-right: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
 }
 
 .sidebar-header {
@@ -92,27 +99,49 @@ body {
   background: var(--bg-secondary);
   border: none;
   padding: 8px;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   color: var(--text-secondary);
-  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-button);
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
+  position: relative;
+  overflow: hidden;
+}
+
+.icon-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transition: width 0.3s, height 0.3s, top 0.3s, left 0.3s;
+  transform: translate(-50%, -50%);
+}
+
+.icon-button:hover::before {
+  width: 100px;
+  height: 100px;
+  top: 50%;
+  left: 50%;
 }
 
 .icon-button:hover {
   background: var(--accent-color);
   color: white;
-  transform: scale(1.05);
-  box-shadow: var(--shadow);
+  transform: translateY(-2px) scale(1.1);
+  box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
 }
 
 .icon-button:active {
-  transform: scale(0.95);
+  transform: translateY(0) scale(0.95);
 }
 
 .success-icon {
@@ -166,22 +195,49 @@ body {
   margin-bottom: 8px;
   border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-  border: 0.5px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  border: 1px solid transparent;
   background: var(--bg-secondary);
+  position: relative;
+  overflow: hidden;
+}
+
+.note-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s;
+}
+
+.note-item:hover::before {
+  left: 100%;
 }
 
 .note-item:hover {
   background: var(--bg-tertiary);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  border-color: var(--accent-color);
 }
 
 .note-item.active {
-  background: var(--accent-color);
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
   color: white;
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 122, 255, 0.3);
+  border-color: var(--accent-color);
+}
+
+.app.dark .note-item:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.app.dark .note-item.active {
+  box-shadow: 0 12px 40px rgba(0, 122, 255, 0.4);
 }
 
 .note-item.active .note-title,
@@ -586,7 +642,7 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--accent-color);
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
   color: white;
   border: none;
   padding: 16px 24px;
@@ -594,18 +650,63 @@ body {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-  box-shadow: var(--shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.create-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.create-button:hover::before {
+  left: 100%;
 }
 
 .create-button:hover {
-  background: var(--accent-hover);
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 12px 40px rgba(0, 122, 255, 0.4);
 }
 
 .create-button:active {
-  transform: translateY(0);
+  transform: translateY(-1px) scale(0.98);
+}
+
+/* Floating Action Button for mobile */
+.fab {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+  z-index: 999;
+}
+
+.fab:hover {
+  transform: scale(1.1);
+  box-shadow: 0 12px 40px rgba(0, 122, 255, 0.4);
+}
+
+.fab:active {
+  transform: scale(0.95);
 }
 
 /* Mobile menu button */
@@ -646,25 +747,43 @@ body {
   font-size: 12px;
   color: var(--success-color);
   font-weight: 500;
-  animation: pulse 1.5s infinite;
+  animation: pulse 2s infinite;
   display: flex;
   align-items: center;
   gap: 6px;
+  background: rgba(48, 209, 88, 0.1);
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(48, 209, 88, 0.2);
 }
 
 .saving-indicator::before {
   content: '●';
-  animation: blink 1s infinite;
+  animation: glow 1.5s infinite;
+  border-radius: 50%;
+  box-shadow: 0 0 8px var(--success-color);
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 0.4; }
+  0%, 100% { 
+    opacity: 1; 
+    transform: scale(1);
+  }
+  50% { 
+    opacity: 0.8; 
+    transform: scale(1.05);
+  }
 }
 
-@keyframes blink {
-  0%, 50% { opacity: 1; }
-  51%, 100% { opacity: 0.3; }
+@keyframes glow {
+  0%, 100% { 
+    opacity: 1;
+    box-shadow: 0 0 8px var(--success-color);
+  }
+  50% { 
+    opacity: 0.4;
+    box-shadow: 0 0 12px var(--success-color);
+  }
 }
 
 /* Loading state for note operations */
@@ -674,26 +793,72 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(var(--bg-primary), 0.8);
-  backdrop-filter: blur(4px);
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 10;
+  animation: fadeIn 0.3s ease;
+}
+
+.app.dark .loading-overlay {
+  background: rgba(28, 28, 30, 0.9);
 }
 
 .loading-spinner {
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   border: 3px solid var(--border-color);
   border-top: 3px solid var(--accent-color);
   border-radius: 50%;
   animation: spin 1s linear infinite;
+  box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
 }
 
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Skeleton loading for notes */
+.skeleton-note {
+  padding: 16px;
+  margin-bottom: 8px;
+  border-radius: var(--radius);
+  background: var(--bg-secondary);
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-line {
+  height: 16px;
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.skeleton-line.short {
+  width: 60%;
+}
+
+.skeleton-line.medium {
+  width: 80%;
+}
+
+.skeleton-line.long {
+  width: 100%;
+}
+
+@keyframes shimmer {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
 /* Empty states */
@@ -1039,15 +1204,19 @@ body {
     display: flex;
   }
 
+  .fab {
+    display: flex;
+  }
+
   .sidebar {
-    width: 85%;
-    max-width: 320px;
+    width: 90%;
+    max-width: 350px;
     position: fixed;
-        z-index: 1000;
+    z-index: 1000;
     height: 100vh;
     transform: translateX(-100%);
-    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-    box-shadow: var(--shadow-lg);
+    transition: transform 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.2);
   }
 
   .sidebar.mobile-open {
@@ -1061,42 +1230,45 @@ body {
 
   .editor-container.split {
     flex-direction: column;
-    height: calc(100vh - 140px);
+    height: calc(100vh - 160px);
   }
 
   .editor-pane {
     border-right: none;
-    border-bottom: 0.5px solid var(--border-color);
-    min-height: 40%;
-    flex: 0 0 40%;
+    border-bottom: 1px solid var(--border-color);
+    min-height: 45%;
+    flex: 0 0 45%;
   }
 
   .preview-pane {
     flex: 1;
-    min-height: 60%;
+    min-height: 55%;
   }
 
   .toolbar {
     flex-wrap: wrap;
-    padding: 8px 16px;
+    padding: 12px 16px;
+    gap: 12px;
   }
 
   .toolbar button {
-    min-width: 36px;
-    height: 36px;
+    min-width: 44px;
+    height: 44px;
+    font-size: 16px;
   }
 
   .editor-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
-    padding: 16px;
-    padding-top: 64px;
+    gap: 16px;
+    padding: 20px 16px;
+    padding-top: 72px;
   }
 
   .editor-actions {
     justify-content: center;
     flex-wrap: wrap;
+    gap: 12px;
   }
 
   .keyboard-shortcuts {
@@ -1104,28 +1276,74 @@ body {
   }
 
   .modal {
-    margin: 16px;
-    width: calc(100% - 32px);
+    margin: 20px;
+    width: calc(100% - 40px);
+    border-radius: 20px;
   }
 
   .title-section h2 {
-    font-size: 24px;
+    font-size: 26px;
   }
 
   .title-input {
-    font-size: 20px;
+    font-size: 22px;
+    padding: 16px 20px;
   }
 
   .search-bar {
-    padding: 12px 16px;
+    padding: 16px 20px;
+  }
+
+  .search-bar input {
+    padding: 16px 20px;
+    font-size: 18px;
   }
 
   .notes-list {
-    padding: 4px 12px 12px;
+    padding: 8px 16px 80px;
   }
 
   .note-item {
-    padding: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+    border-radius: 16px;
+  }
+
+  .editor-textarea {
+    padding: 24px 20px;
+    font-size: 16px;
+    line-height: 1.8;
+  }
+
+  .preview-pane {
+    padding: 24px 20px;
+  }
+
+  /* Improved touch targets */
+  .delete-button {
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+  }
+
+  .note-item:hover .delete-button {
+    opacity: 1;
+  }
+}
+
+/* Tablet specific improvements */
+@media (min-width: 769px) and (max-width: 1024px) {
+  .sidebar {
+    width: 280px;
+  }
+  
+  .editor-header {
+    padding: 24px;
+  }
+  
+  .toolbar button {
+    min-width: 40px;
+    height: 40px;
   }
 }
 

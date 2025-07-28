@@ -460,6 +460,15 @@ function App() {
       >
         <Menu size={20} />
       </button>
+
+      {/* Floating Action Button for mobile */}
+      <button 
+        onClick={createNote}
+        className="fab"
+        title="Create new note"
+      >
+        <Plus size={24} />
+      </button>
       <div className="main-content">
         {state.currentNote ? (
           <>
