@@ -41,6 +41,9 @@ function App() {
   const [editTitle, setEditTitle] = useState('');
   const [editTags, setEditTags] = useState('');
   const [copiedNoteId, setCopiedNoteId] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(null);
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
 
   // Load notes from localStorage on mount
   useEffect(() => {
@@ -63,6 +66,39 @@ function App() {
     }
   }, []);
 
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        switch (e.key) {
+          case 'n':
+            e.preventDefault();
+            createNote();
+            break;
+          case 's':
+            e.preventDefault();
+            if (state.isEditing) {
+              saveNote();
+            }
+            break;
+          case 'e':
+            e.preventDefault();
+            if (state.currentNote) {
+              toggleEdit();
+            }
+            break;
+          case 'p':
+            e.preventDefault();
+            setState(prev => ({ ...prev, showPreview: !prev.showPreview }));
+            break;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [state.isEditing, state.currentNote, createNote, saveNote, toggleEdit]);
+
   // Save notes to localStorage whenever notes change
   useEffect(() => {
     const dataToSave = {
@@ -75,8 +111,10 @@ function App() {
   // Auto-save functionality
   useEffect(() => {
     if (state.isEditing && state.currentNote && (editContent !== state.currentNote.content || editTitle !== state.currentNote.title)) {
+      setIsSaving(true);
       const timeoutId = setTimeout(() => {
         saveNote();
+        setIsSaving(false);
       }, 1000);
       return () => clearTimeout(timeoutId);
     }
@@ -113,6 +151,7 @@ function App() {
     setEditTitle(note.title);
     setEditContent(note.content);
     setEditTags(note.tags.join(', '));
+    setShowMobileSidebar(false);
   }, []);
 
   const deleteNote = useCallback((noteId: string) => {
@@ -121,6 +160,11 @@ function App() {
       notes: prev.notes.filter(note => note.id !== noteId),
       currentNote: prev.currentNote?.id === noteId ? null : prev.currentNote
     }));
+    setShowDeleteConfirm(null);
+  }, []);
+
+  const confirmDelete = useCallback((noteId: string) => {
+    setShowDeleteConfirm(noteId);
   }, []);
 
   const saveNote = useCallback(() => {
@@ -257,17 +301,39 @@ function App() {
     }, 0);
   }, [editContent]);
 
+  const formatRelativeTime = (date: Date) => {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+    
+    if (diffInSeconds < 60) return 'Just now';
+    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}d ago`;
+    
+    return date.toLocaleDateString();
+  };
+
   return (
     <div className={`app ${state.isDarkMode ? 'dark' : 'light'}`}>
-      <div className="sidebar">
+      <div className={`sidebar ${showMobileSidebar ? 'mobile-open' : ''}`}>
         <div className="sidebar-header">
-          <h1>Markdown Notes</h1>
+          <div className="sidebar-title-section">
+            <h1>Markdown Notes</h1>
+            {isSaving && <span className="saving-indicator">Saving...</span>}
+          </div>
           <div className="header-actions">
-            <button onClick={toggleTheme} className="icon-button" title="Toggle theme">
+            <button onClick={toggleTheme} className="icon-button" title="Toggle theme (Ctrl/Cmd + T)">
               {state.isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <button onClick={createNote} className="icon-button" title="New note">
+            <button onClick={createNote} className="icon-button" title="New note (Ctrl/Cmd + N)">
               <Plus size={20} />
+            </button>
+            <button 
+              onClick={() => setShowMobileSidebar(false)} 
+              className="icon-button mobile-close"
+              title="Close sidebar"
+            >
+              ✕
             </button>
           </div>
         </div>
@@ -283,7 +349,21 @@ function App() {
         </div>
 
         <div className="notes-list">
-          {filteredNotes.map(note => (
+          {filteredNotes.length === 0 && state.searchTerm ? (
+            <div className="empty-search">
+              <Search size={32} />
+              <p>No notes found for "{state.searchTerm}"</p>
+              <button onClick={() => setState(prev => ({ ...prev, searchTerm: '' }))} className="clear-search">
+                Clear search
+              </button>
+            </div>
+          ) : filteredNotes.length === 0 && state.notes.length > 0 ? (
+            <div className="empty-search">
+              <FileText size={32} />
+              <p>No notes found</p>
+            </div>
+          ) : (
+            filteredNotes.map(note => (
             <div
               key={note.id}
               className={`note-item ${state.currentNote?.id === note.id ? 'active' : ''}`}
@@ -295,7 +375,7 @@ function App() {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    deleteNote(note.id);
+                    confirmDelete(note.id);
                   }}
                   className="delete-button"
                   title="Delete note"
@@ -315,14 +395,22 @@ function App() {
                   ))}
                 </div>
               )}
-              <div className="note-date">
-                {note.updatedAt.toLocaleDateString()}
+              <div className="note-date" title={note.updatedAt.toLocaleString()}>
+                {formatRelativeTime(note.updatedAt)}
               </div>
             </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
 
+      <button 
+        onClick={() => setShowMobileSidebar(true)} 
+        className="mobile-menu-button"
+        title="Open sidebar"
+      >
+        ☰
+      </button>
       <div className="main-content">
         {state.currentNote ? (
           <>
@@ -345,7 +433,7 @@ function App() {
                     value={editTags}
                     onChange={(e) => setEditTags(e.target.value)}
                     className="tags-input"
-                    placeholder="Tags (comma separated)..."
+                    placeholder="Tags (comma separated): productivity, work, ideas..."
                   />
                 )}
               </div>
@@ -372,11 +460,11 @@ function App() {
                 <button
                   onClick={() => setState(prev => ({ ...prev, showPreview: !prev.showPreview }))}
                   className="icon-button"
-                  title="Toggle preview"
+                  title="Toggle preview (Ctrl/Cmd + P)"
                 >
                   <Eye size={20} />
                 </button>
-                <button onClick={toggleEdit} className="icon-button" title={state.isEditing ? 'Save' : 'Edit'}>
+                <button onClick={toggleEdit} className="icon-button" title={`${state.isEditing ? 'Save' : 'Edit'} (Ctrl/Cmd + E)`}>
                   <Edit3 size={20} />
                 </button>
               </div>
@@ -458,6 +546,35 @@ function App() {
             </button>
           </div>
         )}
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm && (
+        <div className="modal-overlay" onClick={() => setShowDeleteConfirm(null)}>
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
+            <h3>Delete Note</h3>
+            <p>Are you sure you want to delete this note? This action cannot be undone.</p>
+            <div className="modal-actions">
+              <button onClick={() => setShowDeleteConfirm(null)} className="cancel-button">
+                Cancel
+              </button>
+              <button onClick={() => deleteNote(showDeleteConfirm)} className="delete-confirm-button">
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Keyboard Shortcuts Help */}
+      <div className="keyboard-shortcuts" title="Keyboard Shortcuts">
+        <div className="shortcuts-content">
+          <strong>Keyboard Shortcuts:</strong><br/>
+          Ctrl/Cmd + N: New note<br/>
+          Ctrl/Cmd + S: Save note<br/>
+          Ctrl/Cmd + E: Toggle edit<br/>
+          Ctrl/Cmd + P: Toggle preview
+        </div>
       </div>
     </div>
   );

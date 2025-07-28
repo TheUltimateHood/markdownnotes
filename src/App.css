@@ -604,15 +604,235 @@ body {
   box-shadow: var(--shadow-lg);
 }
 
+/* Mobile menu button */
+.mobile-menu-button {
+  display: none;
+  position: fixed;
+  top: 1rem;
+  left: 1rem;
+  z-index: 999;
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 50%;
+  font-size: 1.25rem;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-button:hover {
+  background: var(--accent-hover);
+  transform: scale(1.1);
+}
+
+.mobile-close {
+  display: none;
+}
+
+/* Sidebar title section */
+.sidebar-title-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.saving-indicator {
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 400;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 0.4; }
+}
+
+/* Empty states */
+.empty-search {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.empty-search svg {
+  color: var(--accent-color);
+  opacity: 0.5;
+}
+
+.clear-search {
+  background: var(--accent-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.clear-search:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+}
+
+/* Delete confirmation modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.modal {
+  background: var(--bg-primary);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  max-width: 400px;
+  width: 90%;
+  border: 1px solid var(--border-color);
+}
+
+.modal h3 {
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+  font-size: 1.25rem;
+}
+
+.modal p {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.cancel-button {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cancel-button:hover {
+  background: var(--bg-tertiary);
+}
+
+.delete-confirm-button {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.delete-confirm-button:hover {
+  background: #e53e3e;
+  transform: translateY(-1px);
+}
+
+/* Keyboard shortcuts help */
+.keyboard-shortcuts {
+  position: fixed;
+  bottom: 1rem;
+  right: 1rem;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1rem;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+  opacity: 0;
+  transform: translateY(20px);
+  transition: all 0.3s ease;
+  z-index: 100;
+  max-width: 200px;
+}
+
+.keyboard-shortcuts:hover {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.shortcuts-content {
+  line-height: 1.4;
+}
+
+/* Better focus indicators */
+.title-input:focus,
+.tags-input:focus,
+.search-bar input:focus,
+.editor-textarea:focus {
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.3);
+}
+
+/* Improved note item hover states */
+.note-item {
+  position: relative;
+}
+
+.note-item:hover .note-title {
+  color: var(--accent-color);
+}
+
+.note-item.active:hover .note-title {
+  color: white;
+}
+
+/* Better tag styling */
+.tags-input {
+  font-size: 0.8rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
+  .mobile-menu-button {
+    display: block;
+  }
+
+  .mobile-close {
+    display: flex;
+  }
+
   .sidebar {
     width: 100%;
-    position: absolute;
+    position: fixed;
     z-index: 1000;
     height: 100vh;
     margin: 0;
     border-radius: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.mobile-open {
+    transform: translateX(0);
   }
   
   .main-content {
@@ -628,6 +848,7 @@ body {
   .editor-pane {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
+    min-height: 200px;
   }
   
   .toolbar {
@@ -638,6 +859,16 @@ body {
     flex-direction: column;
     align-items: stretch;
     gap: 1rem;
+    padding-top: 4rem;
+  }
+
+  .keyboard-shortcuts {
+    display: none;
+  }
+
+  .modal {
+    margin: 1rem;
+    width: calc(100% - 2rem);
   }
 }
 
