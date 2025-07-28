@@ -350,16 +350,40 @@ function App() {
         <div className="notes-list">
           {filteredNotes.length === 0 && state.searchTerm ? (
             <div className="empty-search">
-              <Search size={32} />
+              <Search size={48} />
               <p>No notes found for "{state.searchTerm}"</p>
+              <p className="subtitle">Try different keywords or clear your search</p>
               <button onClick={() => setState(prev => ({ ...prev, searchTerm: '' }))} className="clear-search">
                 Clear search
               </button>
             </div>
-          ) : filteredNotes.length === 0 && state.notes.length > 0 ? (
+          ) : filteredNotes.length === 0 && state.notes.length === 0 ? (
+            <div className="empty-state">
+              <FileText size={48} />
+              <h3>Welcome to Markdown Notes!</h3>
+              <p>Create your first note to get started with organizing your thoughts and ideas.</p>
+              <button onClick={createNote} className="clear-search">
+                <Plus size={16} style={{ marginRight: '8px' }} />
+                Create First Note
+              </button>
+              <div className="onboarding-tips">
+                <h4>Quick Tips:</h4>
+                <ul>
+                  <li>Use Ctrl/Cmd + N to create notes quickly</li>
+                  <li>Add tags to organize your notes</li>
+                  <li>Live preview shows your markdown as you type</li>
+                  <li>Export notes as .md files anytime</li>
+                </ul>
+              </div>
+            </div>
+          ) : filteredNotes.length === 0 ? (
             <div className="empty-search">
-              <FileText size={32} />
-              <p>No notes found</p>
+              <Search size={48} />
+              <p>No matching notes</p>
+              <p className="subtitle">Your search didn't match any notes</p>
+              <button onClick={() => setState(prev => ({ ...prev, searchTerm: '' }))} className="clear-search">
+                Show all notes
+              </button>
             </div>
           ) : (
             filteredNotes.map(note => (
@@ -403,6 +427,14 @@ function App() {
         </div>
       </div>
 
+      {showMobileSidebar && (
+        <div 
+          className="modal-overlay" 
+          onClick={() => setShowMobileSidebar(false)}
+          style={{ background: 'rgba(0, 0, 0, 0.3)' }}
+        />
+      )}
+      
       <button 
         onClick={() => setShowMobileSidebar(true)} 
         className="mobile-menu-button"
@@ -537,12 +569,15 @@ function App() {
         ) : (
           <div className="welcome-screen">
             <FileText size={64} />
-            <h2>Welcome to Markdown Notes</h2>
-            <p>Select a note from the sidebar or create a new one to get started.</p>
+            <h2>Ready to Start Writing?</h2>
+            <p>Select a note from the sidebar or create a new one to begin capturing your ideas in markdown format.</p>
             <button onClick={createNote} className="create-button">
               <Plus size={20} />
-              Create Your First Note
+              Create New Note
             </button>
+            <div style={{ marginTop: '32px', fontSize: '14px', opacity: '0.7' }}>
+              <p>💡 Pro tip: Press <strong>Ctrl/Cmd + N</strong> to quickly create notes</p>
+            </div>
           </div>
         )}
       </div>
@@ -566,13 +601,25 @@ function App() {
       )}
 
       {/* Keyboard Shortcuts Help */}
-      <div className="keyboard-shortcuts" title="Keyboard Shortcuts">
+      <div className="keyboard-shortcuts" title="Click to see keyboard shortcuts">
         <div className="shortcuts-content">
-          <strong>Keyboard Shortcuts:</strong><br/>
-          Ctrl/Cmd + N: New note<br/>
-          Ctrl/Cmd + S: Save note<br/>
-          Ctrl/Cmd + E: Toggle edit<br/>
-          Ctrl/Cmd + P: Toggle preview
+          <div className="shortcuts-title">Shortcuts</div>
+          <div className="shortcut-item">
+            <span>New note</span>
+            <span className="shortcut-key">Ctrl+N</span>
+          </div>
+          <div className="shortcut-item">
+            <span>Save note</span>
+            <span className="shortcut-key">Ctrl+S</span>
+          </div>
+          <div className="shortcut-item">
+            <span>Toggle edit</span>
+            <span className="shortcut-key">Ctrl+E</span>
+          </div>
+          <div className="shortcut-item">
+            <span>Toggle preview</span>
+            <span className="shortcut-key">Ctrl+P</span>
+          </div>
         </div>
       </div>
     </div>
